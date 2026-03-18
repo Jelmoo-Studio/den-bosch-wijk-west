@@ -44,8 +44,8 @@ export const DOELGROEPEN: { value: Doelgroep; label: string }[] = [
 ];
 
 export const BUURT_COLORS: Record<Buurt, string> = {
-  Kruiskamp: "#f97316",
-  Schutskamp: "#3b82f6",
-  Deuteren: "#22c55e",
-  Engelen: "#a855f7",
+  Kruiskamp: "#6366f1",
+  Schutskamp: "#0ea5e9",
+  Deuteren: "#10b981",
+  Engelen: "#f59e0b",
 };

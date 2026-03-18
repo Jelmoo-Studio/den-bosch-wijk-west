@@ -1,100 +1,93 @@
 "use client";
 
-import Link from "next/link";
 import { Ontmoetingsplek, BUURT_COLORS } from "@/lib/types";
-import { MapPinIcon, ClockIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon } from "@heroicons/react/24/outline";
 
 interface PlekKaartProps {
   plek: Ontmoetingsplek;
   isSelected?: boolean;
   onClick?: () => void;
-  compact?: boolean;
+  onOpenDetail?: (plek: Ontmoetingsplek) => void;
 }
 
 export default function PlekKaart({
   plek,
   isSelected,
   onClick,
-  compact,
+  onOpenDetail,
 }: PlekKaartProps) {
   const color = BUURT_COLORS[plek.buurt];
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${
+      className={`bg-white rounded-xl border transition-all cursor-pointer group ${
         isSelected
-          ? "border-brand-500 shadow-md"
-          : "border-transparent hover:border-gray-200"
-      } ${compact ? "p-3" : "p-4"}`}
+          ? "border-brand-200 shadow-md shadow-brand-100/50"
+          : "border-gray-100 hover:border-gray-200 hover:shadow-sm"
+      }`}
     >
-      {/* Buurt badge */}
-      <div className="flex items-center justify-between mb-2">
-        <span
-          className="text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full text-white"
-          style={{ backgroundColor: color }}
-        >
-          {plek.buurt}
-        </span>
-        <span className="text-xs text-gray-400 capitalize">{plek.type}</span>
-      </div>
+      {/* Colored top accent */}
+      <div
+        className="h-0.5 rounded-t-xl"
+        style={{ backgroundColor: isSelected ? color : "transparent" }}
+      />
 
-      {/* Naam */}
-      <h3 className={`font-bold text-gray-900 ${compact ? "text-sm" : "text-base"} leading-tight mb-1`}>
-        {plek.naam}
-      </h3>
-
-      {/* Adres */}
-      <div className="flex items-start gap-1 text-gray-500 text-xs mb-2">
-        <MapPinIcon className="w-3 h-3 mt-0.5 shrink-0" />
-        <span>{plek.adres}</span>
-      </div>
-
-      {!compact && (
-        <>
-          {/* Beschrijving */}
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {plek.beschrijving}
-          </p>
-
-          {/* Openingstijden */}
-          {plek.openingstijden && (
-            <div className="flex items-start gap-1 text-gray-500 text-xs mb-1">
-              <ClockIcon className="w-3 h-3 mt-0.5 shrink-0" />
-              <span>{plek.openingstijden}</span>
-            </div>
-          )}
-
-          {/* Telefoon */}
-          {plek.contact_telefoon && (
-            <div className="flex items-center gap-1 text-gray-500 text-xs mb-3">
-              <PhoneIcon className="w-3 h-3 shrink-0" />
-              <span>{plek.contact_telefoon}</span>
-            </div>
-          )}
-
-          {/* Doelgroepen */}
-          <div className="flex flex-wrap gap-1 mb-3">
-            {plek.doelgroepen.map((dg) => (
-              <span
-                key={dg}
-                className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize"
-              >
-                {dg}
-              </span>
-            ))}
-          </div>
-
-          {/* Link */}
-          <Link
-            href={`/plek/${plek.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="text-xs font-semibold text-brand-600 hover:text-brand-700"
+      <div className="p-3">
+        {/* Buurt badge + type */}
+        <div className="flex items-center justify-between mb-2">
+          <span
+            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: `${color}18`, color }}
           >
-            Meer informatie →
-          </Link>
-        </>
-      )}
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+            {plek.buurt}
+          </span>
+          <span className="text-xs text-gray-400 capitalize">{plek.type}</span>
+        </div>
+
+        {/* Naam */}
+        <h3 className="font-semibold text-gray-900 text-sm leading-snug mb-1.5">
+          {plek.naam}
+        </h3>
+
+        {/* Adres */}
+        <div className="flex items-start gap-1.5 text-gray-400 text-xs mb-3">
+          <MapPinIcon className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>{plek.adres}</span>
+        </div>
+
+        {/* Beschrijving snippet */}
+        <p className="text-xs text-gray-500 line-clamp-2 mb-3 leading-relaxed">
+          {plek.beschrijving}
+        </p>
+
+        {/* Bekijk details button */}
+        {onOpenDetail && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetail(plek);
+            }}
+            className="w-full text-xs font-semibold py-1.5 px-3 rounded-lg border transition-colors"
+            style={{
+              borderColor: `${color}40`,
+              color,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = `${color}12`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+          >
+            Bekijk details
+          </button>
+        )}
+      </div>
     </div>
   );
 }

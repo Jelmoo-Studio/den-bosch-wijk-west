@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import { Ontmoetingsplek, BUURT_COLORS } from "@/lib/types";
-import Link from "next/link";
 
 // Fix Leaflet default icon path in Next.js
 function fixLeafletIcons() {
@@ -20,20 +19,22 @@ function fixLeafletIcons() {
   });
 }
 
-function createColoredIcon(color: string) {
+function createColoredIcon(color: string, isSelected: boolean) {
   return L.divIcon({
     className: "",
     html: `<div style="
-      width: 28px; height: 28px;
+      width: ${isSelected ? "34px" : "28px"};
+      height: ${isSelected ? "34px" : "28px"};
       background-color: ${color};
-      border: 3px solid white;
+      border: ${isSelected ? "3px" : "2.5px"} solid white;
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 2px ${isSelected ? "10px" : "6px"} rgba(0,0,0,${isSelected ? "0.4" : "0.2"});
+      transition: all 0.2s;
     "></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -30],
+    iconSize: [isSelected ? 34 : 28, isSelected ? 34 : 28],
+    iconAnchor: [isSelected ? 17 : 14, isSelected ? 34 : 28],
+    popupAnchor: [0, -32],
   });
 }
 
@@ -59,12 +60,14 @@ interface KaartInnerProps {
   plekken: Ontmoetingsplek[];
   selectedId: string | null;
   onSelectPlek: (id: string) => void;
+  onOpenDetail: (plek: Ontmoetingsplek) => void;
 }
 
 export default function KaartInner({
   plekken,
   selectedId,
   onSelectPlek,
+  onOpenDetail,
 }: KaartInnerProps) {
   useEffect(() => {
     fixLeafletIcons();
@@ -72,40 +75,41 @@ export default function KaartInner({
 
   return (
     <MapContainer
-      center={[51.7, 5.29]}
-      zoom={13}
+      center={[51.698, 5.285]}
+      zoom={15}
       className="h-full w-full rounded-xl"
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
       />
       <FlyToMarker selected={selectedId} plekken={plekken} />
       {plekken.map((plek) => (
         <Marker
           key={plek.id}
           position={[plek.lat, plek.lng]}
-          icon={createColoredIcon(BUURT_COLORS[plek.buurt])}
+          icon={createColoredIcon(BUURT_COLORS[plek.buurt], selectedId === plek.id)}
           eventHandlers={{ click: () => onSelectPlek(plek.id) }}
         >
           <Popup>
             <div className="min-w-[180px]">
               <div
-                className="text-xs font-semibold uppercase tracking-wide mb-1"
+                className="text-xs font-semibold uppercase tracking-wider mb-1"
                 style={{ color: BUURT_COLORS[plek.buurt] }}
               >
                 {plek.buurt}
               </div>
-              <div className="font-bold text-gray-900 text-sm mb-1">
+              <div className="font-bold text-gray-900 text-sm mb-0.5">
                 {plek.naam}
               </div>
               <div className="text-xs text-gray-500 mb-3">{plek.adres}</div>
-              <Link
-                href={`/plek/${plek.id}`}
-                className="text-xs font-semibold text-brand-600 hover:text-brand-700"
+              <button
+                onClick={() => onOpenDetail(plek)}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition-colors w-full text-center"
+                style={{ backgroundColor: BUURT_COLORS[plek.buurt] }}
               >
-                Meer informatie →
-              </Link>
+                Meer informatie
+              </button>
             </div>
           </Popup>
         </Marker>

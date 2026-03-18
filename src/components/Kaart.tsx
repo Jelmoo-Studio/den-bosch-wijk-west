@@ -16,6 +16,7 @@ interface KaartProps {
   plekken: Ontmoetingsplek[];
   selectedId: string | null;
   onSelectPlek: (id: string) => void;
+  onOpenDetail: (plek: Ontmoetingsplek) => void;
 }
 
 export default function Kaart(props: KaartProps) {
